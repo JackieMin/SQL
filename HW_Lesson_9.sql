@@ -2,7 +2,51 @@
 -- ƒомашнее задание урока 9
 
 ------------------------------------------------------------------------------------------------------------------------------------
--- «адание 1 —оздайте последовательность counter.
+-- 1 ”далить представление security.duty.
+
+drop view security.duty_v
+
+------------------------------------------------------------------------------------------------------------------------------------
+-- 2 ”далить таблицу hr.duty.
+
+drop table hr.duty
+
+------------------------------------------------------------------------------------------------------------------------------------
+-- 3. —оздать таблицу security.duty с трем€ пол€ми:
+--    id - автоинкрементное поле (id записи)
+--    employee_id - число (идентификатор сотрудника)
+--    duty_date - дата (дата дежурства)
+
+create table security.duty (
+             id number generated as identity, 
+             employee_id number,
+             duty_date date
+             )
+
+------------------------------------------------------------------------------------------------------------------------------------
+-- 4. ƒать права на чтение с возможностью передавать права дальше таблицы hr.employees схеме security.
+
+grant select on HR.employees to security with grant option
+
+
+------------------------------------------------------------------------------------------------------------------------------------
+-- 5. —оздать представление security.duty_employees на основе запроса с соединением таблиц hr.employees и security.duty по полю employee_id и выводом полей с натуральными значени€ми (без идентификаторов).
+
+create view security.duty_employees
+as
+select e.first_name,
+       e.last_name,
+       e.email,
+       e.phone_number,
+       e.hire_date,
+       e.salary,
+       e.commission_pct,
+       d.duty_date
+from hr.employees e
+join security.duty d on e.employee_id = d.employee_id
+
+
+
 
 
 ------------------------------------------------------------------------------------------------------------------------------------
@@ -97,3 +141,7 @@ create user security
        default tablespace sysaux
        temporary tablespace temp 
        account unlock;
+
+alter user security quota unlimited on sysaux;
+
+grant create session to security
