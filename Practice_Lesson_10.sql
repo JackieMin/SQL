@@ -6,11 +6,10 @@
 ------------------------------------------------------------------------------------------------------------------------------------
 -- Задание 1 Создать таблицу seller.model_tmp через create as select таблицы seller.model.
 
-grant select on seller.model to seller
-
-create table seller.model_tmp 
-as 
-select * from seller.model;
+create table seller.model_tmp (id number generated as identity,
+                            name varchar2(32) not null,
+                            maker_id,
+                            foreign key (maker_id) references seller.maker (id));   
 
 ------------------------------------------------------------------------------------------------------------------------------------
 -- Задание 2 Заполнить таблицу seller.model_tmp преобразуя натуральное значение производителя в ID. Для этого выполните SQL скрипт script_of_models.sql. Его вы найдете в папке Gitlab
@@ -20,12 +19,18 @@ select * from seller.model;
 ------------------------------------------------------------------------------------------------------------------------------------
 -- Задание 3 Вставьте в таблицу seller.models через insert as select данные из таблицы seller.models_tmp.
 
+insert into seller.model ( name,
+                          maker_id)
+select  name,
+        maker_id
+from seller.model_tmp;
 
+select * from seller.model
 
 ------------------------------------------------------------------------------------------------------------------------------------
 -- Задание 4 Зафиксируйте транзакцию.
 
-
+commit
 
 ------------------------------------------------------------------------------------------------------------------------------------
 -- Практика урока 10.3
