@@ -40,7 +40,8 @@ is
         select sum(salary) as sum_sal,
                min(salary) as min_sal,
                max(salary) as max_sal,
-               listagg (first_name || ' ' || last_name || ', ' || chr(10)) WITHIN GROUP (ORDER BY dep.department_name) "employees"    
+--             listagg (first_name || ' ' || last_name || ', ' || chr(10)) WITHIN GROUP (ORDER BY dep.department_name) "employees"
+               listagg (first_name || ' ' || last_name || ', ' || chr(10)) WITHIN GROUP (ORDER BY dep.department_name) AS employees
         from employees emp
         join departments dep on dep.department_id = emp.department_id
         join jobs j on j.job_id = emp.job_id
@@ -55,31 +56,22 @@ is
         close c_report;
     end agg_proc; 
 
-   function agg_func return agg_tbl pipelined   
-    as
-        i number := 1;
-        v_var pkg_agg_employees.agg_tbl;
-        v_row pkg_agg_employees.agg_type;
-     begin   
-         pkg_agg_employees.agg_proc (v_var);
-         for i in 1..v_var.count loop
-            v_row: = null;
-            v_row.sum_sal := v_var(i).sum_sal; 
-            v_row.min_sal := v_var(i).min_sal; 
-            v_row.max_sal := v_var(i).max_sal; 
-            v_row.employees := v_var(i).employees; 
-            pipe row (v_row);
-            i:= i+1;
-         end loop;
-      return;   
-     end agg_func; 
+    function agg_func return agg_tbl pipelined as
+       v_var pkg_agg_employees.agg_tbl;
+    begin   
+       agg_proc(v_var);
+       for i in v_var.first..v_var.last loop
+           pipe row (v_var(i));
+       end loop;
+       return;   
+    end agg_func; 
 
 end pkg_agg_employees; 
 
 
 -- Напишите запрос вызова конвейерной функции.
 
-select * from table(pkg_agg_employees.agg_func)
+select * from table(pkg_agg_employees.agg_func);
 
 
 ------------------------------------------------------------------------------------------------------------------------------------
